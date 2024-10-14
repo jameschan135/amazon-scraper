@@ -313,6 +313,183 @@ function AmazonScraperTabMultiple() {
     saveAs(blob, fileName);
   };
 
+
+  const handleDownloadWithoutVariants = async () => {
+    
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Amazon Scrape Results');
+
+    // Tìm số lượng hình ảnh lớn nhất
+    const maxImageCount = Math.max(
+      ...scrapedData.map(item => 
+        Math.max(
+          item.info?.mainImages?.length || 0,
+          ...Object.values(item.info?.hiResImages || {}).map(images => images.length)
+        )
+      )
+    );
+
+    const baseHeaders = [
+      'Category', 'Sub-category', 'ASIN', 'Title', 'Link', 'Price',
+      'Flavor Name', 'Size', 'Color', 'Style', 'Unknown', 'Price Listing',
+      'Free Deli Day', 'Prime Deli Day', 'Is Prime', 
+      'Stock Status', 'Ships From', 'Sold By', 'Description', 'UPC', 'Brand', 'Manufacturer', 'Ingredients', 'Weight', 'Length', 'Width', 'Height', 
+      'Item Form', 'Product Benefits', 'Scent', 'Material Type', 'Skin Type', 'Item Volume', 'Age Range', 'Special Feature',
+      'Publisher', 'Language', 'Paperback', 'ISBN-10', 'ISBN-13'
+    ];
+
+    // Thêm tiêu đề cho các cột hình ảnh
+    for (let i = 1; i <= maxImageCount; i++) {
+      baseHeaders.push(`Image ${i}`);
+    }
+
+    worksheet.columns = baseHeaders.map(header => ({
+      header,
+      key: header.toLowerCase().replace(/ /g, '_'),
+      width: 20
+    }));
+
+    scrapedData.forEach((item, index) => {
+      const mainRowData = {};
+      baseHeaders.forEach(header => {
+        const key = header.toLowerCase().replace(/ /g, '_');
+        if (key === 'sub-category') {
+          const subCategoryKey = Object.keys(item.info || {}).find(k => k.toLowerCase().includes('subcategory'));
+          mainRowData[key] = subCategoryKey ? item.info[subCategoryKey] : '';
+        } else if (key === 'link') {
+          const urlKey = Object.keys(item.info || {}).find(k => k.toLowerCase().includes('url'));
+          const url = urlKey ? item.info[urlKey] : '';
+          mainRowData[key] = { text: url, hyperlink: url };
+        } else if (key === 'price') {
+          const price = item.info?.price || '';
+          mainRowData[key] = price.replace(/[^0-9.]/g, '');
+        } else if(['flavor_name', 'size', 'color', 'style', 'unknown'].includes(key)){
+          // Xử lý variants
+          const variants = parseVariants(item.info?.variants || '');
+          mainRowData[key] = variants[header] || '';
+        } else if(key === 'free_deli_day'){
+          const freeDeliDay = Object.keys(item.info || {}).find(k => k.toLowerCase().includes('primarydeliveryinfo'));
+          mainRowData[key] = freeDeliDay ? item.info[freeDeliDay] : '';
+        } else if(key === 'prime_deli_day'){
+          const primeDeliDay = Object.keys(item.info || {}).find(k => k.toLowerCase().includes('secondarydeliveryinfo'));
+          mainRowData[key] = primeDeliDay ? item.info[primeDeliDay] : '';
+        } else if(key === 'is_prime'){
+          const isPrime = Object.keys(item.info || {}).find(k => k.toLowerCase().includes('checkprimemember'));
+          mainRowData[key] = isPrime ? item.info[isPrime] : '';
+        } else if(key === 'stock_status'){
+          const stockStatus = Object.keys(item.info || {}).find(k => k.toLowerCase().includes('stockstatus'));
+          mainRowData[key] = stockStatus ? item.info[stockStatus] : '';
+        } else if(key === 'ships_from'){
+          const shipsFrom = Object.keys(item.info || {}).find(k => k.toLowerCase().includes('shipsfrom'));
+          mainRowData[key] = shipsFrom ? item.info[shipsFrom] : '';
+        } else if(key === 'sold_by'){
+          const soldBy = Object.keys(item.info || {}).find(k => k.toLowerCase().includes('soldby'));
+          mainRowData[key] = soldBy ? item.info[soldBy] : '';
+        } else if(key === 'description'){
+          const descriptionKey = Object.keys(item.info || {}).find(k => k.toLowerCase() === 'description');
+          const bookDescriptionKey = Object.keys(item.info || {}).find(k => k.toLowerCase() === 'bookdescription');
+          
+          if (descriptionKey && item.info[descriptionKey]) {
+            mainRowData[key] = item.info[descriptionKey];
+          } else if (bookDescriptionKey) {
+            mainRowData[key] = item.info[bookDescriptionKey];
+          } else {
+            mainRowData[key] = '';
+          }
+        } else if(key === 'upc'){
+          const upcValue = findUPCValue(item.info);
+          mainRowData[key] = upcValue ? cleanValue(upcValue) : '';
+        } else if(key === 'brand'){
+          const brandValue = findBrandValue(item.info);
+          mainRowData[key] = brandValue ? cleanValue(brandValue) : '';
+        } else if(key === 'manufacturer'){
+          const manufacturerValue = findManufacturerValue(item.info);
+          mainRowData[key] = manufacturerValue ? cleanValue(manufacturerValue) : '';
+        } else if(key === 'ingredients'){
+          const ingredientKey = Object.keys(item.info || {}).find(k => k.toLowerCase().includes('ingredients1'));
+          mainRowData[key] = ingredientKey ? item.info[ingredientKey] : '';
+        } else if (key === 'weight' || key === 'length' || key === 'width' || key === 'height') {
+          const dimensions = extractDimensions(item.info?.itemDetails2, item.info?.technicalDetails, item.info);
+          mainRowData[key] = dimensions[key] || '';
+        } else if(key === 'item_form'){
+          const itemFormValue = findItemFormValue(item.info);
+          mainRowData[key] = itemFormValue ? cleanValue(itemFormValue) : '';
+        } else if(key === 'product_benefits'){
+          const productBenefitsValue = findProductBenefitsValue(item.info);
+          mainRowData[key] = productBenefitsValue ? cleanValue(productBenefitsValue) : '';
+        } else if(key === 'scent'){
+          const scentValue = findScentValue(item.info);
+          mainRowData[key] = scentValue ? cleanValue(scentValue) : '';
+        } else if(key === 'material_type'){
+          const materialTypeValue = findMaterialValue(item.info);
+          mainRowData[key] = materialTypeValue ? cleanValue(materialTypeValue) : '';
+        } else if(key === 'skin_type'){
+          const skinTypeValue = findSkinTypeValue(item.info);
+          mainRowData[key] = skinTypeValue ? cleanValue(skinTypeValue) : '';
+        } else if(key === 'item_volume'){
+          const itemVolumeValue = findItemVolumeValue(item.info);
+          mainRowData[key] = itemVolumeValue ? cleanValue(itemVolumeValue) : '';  
+        } else if(key === 'age_range'){
+          const ageRangeValue = findAgeRangeValue(item.info);
+          mainRowData[key] = ageRangeValue ? cleanValue(ageRangeValue) : '';
+        } else if(key === 'special_feature'){
+          const specialFeatureValue = findSpecialFeaturesValue(item.info);
+          mainRowData[key] = specialFeatureValue ? cleanValue(specialFeatureValue) : '';
+        } else if(key === 'publisher'){
+          const publisherValue = findPublisherValue(item.info);
+          mainRowData[key] = publisherValue ? cleanValue(publisherValue) : '';
+        } else if(key === 'language'){
+          const languageValue = findLanguageValue(item.info);
+          mainRowData[key] = languageValue ? cleanValue(languageValue) : '';
+        } else if(key === 'paperback'){
+          const paperbackValue = findPaperbackValue(item.info);
+          mainRowData[key] = paperbackValue ? cleanValue(paperbackValue) : '';
+        } else if(key === 'hardcover'){
+          const hardcoverValue = findHardcoverValue(item.info);
+          mainRowData[key] = hardcoverValue ? cleanValue(hardcoverValue) : '';
+        } else if(key === 'isbn-10'){
+          const isbn10Value = findISBN10Value(item.info);
+          mainRowData[key] = isbn10Value ? cleanValue(isbn10Value) : '';
+        } else if(key === 'isbn-13'){
+          const isbn13Value = findISBN13Value(item.info);
+          mainRowData[key] = isbn13Value ? cleanValue(isbn13Value) : '';
+        } else {
+          mainRowData[key] = item.info?.[key] || '';
+        }
+      });
+
+      // Thêm URL hình ảnh cho sản phẩm chính
+      const allImages = [...(item.info?.mainImages || []), ...(item.info?.hiResImages?.[item.info?.mainImageAsin] || [])];
+      for (let i = 0; i < maxImageCount; i++) {
+        mainRowData[`image_${i + 1}`] = allImages[i] || '';
+      }
+
+      const mainRow = worksheet.addRow(mainRowData);
+
+      // Định dạng ô Link
+      const linkCell = mainRow.getCell('link');
+      if (linkCell.value) {
+        linkCell.font = { color: { argb: 'FF0000FF' }, underline: true };
+      }
+
+      // Định dạng ô Price là số
+      const priceCell = mainRow.getCell('price');
+      if (priceCell.value) {
+        priceCell.numFmt = '0.00';
+      }
+
+
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const fileName = `amazon_scrape_multiple_${Math.floor(Date.now() / 1000)}.xlsx`;
+    saveAs(blob, fileName);
+  };
+
+
+
+
   // Thêm hàm parseVariants vào component
   function parseVariants(variantsString) {
     const variants = {
@@ -864,6 +1041,9 @@ function AmazonScraperTabMultiple() {
         </button>
         <button onClick={handleDownload} disabled={scrapedData.length === 0}>
           Tải Kết Quả
+        </button>
+        <button onClick={handleDownloadWithoutVariants} disabled={scrapedData.length === 0}>
+          Tải Kết Quả (Không Variants)
         </button>
       </div>
 
