@@ -1,23 +1,29 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import AmazonScraperTab from './components/AmazonScraperTab';
+import AmazonScraperTabMultiple from './components/AmazonScraperTabMultiple';
 import './App.css';
 
 function App() {
+  const [activeTab, setActiveTab] = useState('single');
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+      <h1>Amazon Scraper</h1>
+      <div className="tab-buttons">
+        <button 
+          onClick={() => setActiveTab('single')} 
+          className={`tab-button ${activeTab === 'single' ? 'active' : ''}`}
         >
-          Learn React
-        </a>
-      </header>
+          Single ASIN
+        </button>
+        <button 
+          onClick={() => setActiveTab('multiple')} 
+          className={`tab-button ${activeTab === 'multiple' ? 'active' : ''}`}
+        >
+          Multiple ASINs
+        </button>
+      </div>
+      {activeTab === 'single' ? <AmazonScraperTab /> : <AmazonScraperTabMultiple />}
     </div>
   );
 }

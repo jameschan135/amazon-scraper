@@ -1,0 +1,112 @@
+@import './common.css';
+
+.amazon-scraper-tab {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.amazon-scraper-tab h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.amazon-scraper-tab .input-container {
+  justify-content: center;
+}
+
+.amazon-scraper-tab .result-container {
+  overflow-x: auto;
+}
+
+.input-type {
+  margin-bottom: 20px;
+}
+
+.input-type label {
+  margin-right: 20px;
+}
+
+.file-input, .single-link-input {
+  margin-bottom: 20px;
+}
+
+.output-settings > div {
+  margin-bottom: 10px;
+}
+
+.output-settings label {
+  display: inline-block;
+  width: 120px;
+}
+
+.output-settings input[type="text"], .output-settings select {
+  width: 200px;
+}
+
+.action-buttons {
+  margin-top: 20px;
+}
+
+.action-buttons button {
+  margin-right: 10px;
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.action-buttons button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.action-buttons button:last-child {
+  background-color: #008CBA;
+}
+
+.result-area {
+  margin-top: 20px;
+}
+
+.result-area textarea {
+  width: 100%;
+  height: 200px;
+  resize: vertical;
+}
+
+.niche-selection {
+  margin-bottom: 15px;
+}
+
+.niche-selection select {
+  margin-right: 10px;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+}
+
+.image-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.image-table th, .image-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.image-table th {
+  background-color: #f2f2f2;
+}
+
+.thumbnail {
+  max-width: 100px;
+  max-height: 100px;
+  object-fit: contain;
+}

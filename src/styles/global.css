@@ -1,0 +1,187 @@
+:root {
+  --primary-color: #4CAF50;
+  --secondary-color: #008CBA;
+  --text-color: #333;
+  --background-color: #f4f4f4;
+  --border-color: #ddd;
+  --font-size-base: 16px;
+  --spacing-unit: 8px;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  font-size: var(--font-size-base);
+  color: var(--text-color);
+  background-color: var(--background-color);
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: calc(var(--spacing-unit) * 2);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: calc(var(--spacing-unit) * 3);
+  color: var(--primary-color);
+}
+
+.input-container {
+  margin-bottom: calc(var(--spacing-unit) * 2);
+}
+
+.input-container label {
+  display: block;
+  margin-bottom: var(--spacing-unit);
+  font-weight: bold;
+}
+
+.input-container input,
+.input-container textarea {
+  width: 100%;
+  padding: var(--spacing-unit);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: var(--font-size-base);
+}
+
+.input-container textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: calc(var(--spacing-unit) * 2);
+  margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+.action-buttons button {
+  padding: var(--spacing-unit) calc(var(--spacing-unit) * 2);
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  transition: background-color 0.3s;
+}
+
+.action-buttons button:hover {
+  background-color: #45a049;
+}
+
+.action-buttons button:disabled {
+  background-color: var(--border-color);
+  cursor: not-allowed;
+}
+
+.result-area {
+  margin-top: calc(var(--spacing-unit) * 3);
+}
+
+.result-area h3 {
+  margin-bottom: var(--spacing-unit);
+}
+
+.result-textarea {
+  width: 100%;
+  height: 200px;
+  padding: var(--spacing-unit);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  resize: vertical;
+}
+
+@media (max-width: 768px) {
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-buttons button {
+    width: 100%;
+  }
+}
+
+/* Thêm vào cuối file global.css */
+
+.download-section {
+  margin-top: 2rem;
+}
+
+.download-section h3 {
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.image-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.image-table th,
+.image-table td {
+  border: 1px solid var(--border-color);
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.image-table th {
+  background-color: var(--background-color);
+  font-weight: bold;
+}
+
+.image-table img.thumbnail {
+  max-width: 100px;
+  max-height: 100px;
+  object-fit: contain;
+}
+
+.image-table a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.image-table a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive design cho bảng */
+@media (max-width: 768px) {
+  .image-table, .image-table thead, .image-table tbody, .image-table th, .image-table td, .image-table tr {
+    display: block;
+  }
+  
+  .image-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  
+  .image-table tr {
+    border: 1px solid var(--border-color);
+    margin-bottom: 0.5rem;
+  }
+  
+  .image-table td {
+    border: none;
+    position: relative;
+    padding-left: 50%;
+  }
+  
+  .image-table td:before {
+    content: attr(data-label);
+    position: absolute;
+    left: 6px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    font-weight: bold;
+  }
+}
